@@ -20,62 +20,31 @@ fn numbers_to_sudoku(numbers: [[u8; 9]; 9]) -> Sudoku {
 fn build_initial_options(sudoku: &mut Sudoku) {
     // At the beginning, there is no Options in the Sudoku
     // Check rows
-    for row in 0..9 {
-        let mut row_options = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-        for col in 0..9 {
-            match sudoku.0[row][col] {
-                Field::Empty => {}
-                Field::Options(_) => {}
-                Field::Filled(value) => {row_options.retain(|x| *x != value);}
-            }
+    for i in 0..9 {
+        let mut row_options = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let mut col_options = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+        for j in 0..9 {
+            sudoku.gen_options_from_field(i, j, &mut row_options);
+            sudoku.gen_options_from_field(j, i, &mut col_options);
         }
-        for col in 0..9 {
-            match &mut sudoku.0[row][col] {
-                Field::Empty => {sudoku.0[row][col] = Field::Options(row_options.clone())},
-                Field::Options(current_options) => {current_options.retain(|x| row_options.contains(x))},
-                Field::Filled(_) => {}
-            }
-        }
-    }
-    // Check cols
-    for col in 0..9 {
-        let mut col_options = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-        for row in 0..9 {
-            match sudoku.0[row][col] {
-                Field::Empty => {}
-                Field::Options(_) => {}
-                Field::Filled(value) => {col_options.retain(|x| *x != value);}
-            }
-        }
-        for row in 0..9 {
-            match &mut sudoku.0[row][col] {
-                Field::Empty => {sudoku.0[row][col] = Field::Options(col_options.clone());},
-                Field::Options(current_options) => {current_options.retain(|x| col_options.contains(x));}
-                Field::Filled(_) => {}
-            }
+        for j in 0..9 {
+            sudoku.update_options(i, j, &row_options);
+            sudoku.update_options(j, i, &col_options);
         }
     }
     // Check squares
     for square_num in 0..9 {
         let row_start = (square_num / 3) * 3;
         let col_start = (square_num % 3) * 3;
-        let mut square_options = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let mut square_options = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
         for row in row_start..row_start + 3 {
             for col in col_start..col_start + 3 {
-                match sudoku.0[row][col] {
-                    Field::Empty => {}
-                    Field::Options(_) => {}
-                    Field::Filled(value) => {square_options.retain(|x| *x != value);}
-                }
+                sudoku.gen_options_from_field(row, col, &mut square_options);
             }
         }
         for row in row_start..row_start + 3 {
             for col in col_start..col_start + 3 {
-                match &mut sudoku.0[row][col] {
-                    Field::Empty => {sudoku.0[row][col] = Field::Options(square_options.clone());},
-                    Field::Options(current_options) => {current_options.retain(|x| square_options.contains(x));}
-                    Field::Filled(_) => {}
-                }
+                sudoku.update_options(row, col, &square_options);
             }
         }
     }
@@ -143,27 +112,8 @@ fn fill_field(sudoku: &mut Sudoku, row: usize, col: usize, new_value: u8) -> boo
     // Update remaining options
     // update row and col
     for index in 0..9 {
-        if index != col {
-            match &mut sudoku.0[row][index] {
-                Field::Empty | Field::Filled(_) => {}
-                Field::Options(options) => {
-                    options.retain(|x| *x != new_value);
-                    if options.is_empty() {
-                        return false;
-                    }
-                }
-            }
-        }
-        if index != row {
-            match &mut sudoku.0[index][col] {
-                Field::Empty | Field::Filled(_) => {}
-                Field::Options(options) => {
-                    options.retain(|x| *x != new_value);
-                    if options.is_empty() {
-                        return false;
-                    }
-                }
-            }
+        if !sudoku.update_existing_options(row, index, new_value) || !sudoku.update_existing_options(index, col, new_value) {
+            return false;
         }
     }
     // update square
@@ -171,14 +121,8 @@ fn fill_field(sudoku: &mut Sudoku, row: usize, col: usize, new_value: u8) -> boo
     let col_offset = (col / 3) * 3;
     for r in row_offset..row_offset + 3 {
         for c in col_offset..col_offset + 3 {
-            match &mut sudoku.0[r][c] {
-                Field::Empty | Field::Filled(_) => {}
-                Field::Options(options) => {
-                    options.retain(|x| *x != new_value);
-                    if options.is_empty() {
-                        return false;
-                    }
-                }
+            if !sudoku.update_existing_options(r, c, new_value) { 
+                return false;
             }
         }
     }

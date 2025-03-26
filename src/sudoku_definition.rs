@@ -12,6 +12,49 @@ impl Sudoku {
     pub(crate) fn default() -> Sudoku {
         Sudoku(Default::default())
     }
+    
+    pub(crate) fn gen_options_from_field(&self, row: usize, col: usize, options: &mut Vec<u8>) {
+        match self.0[row][col] { 
+            Field::Empty => {}
+            Field::Options(_) => {}
+            Field::Filled(value) => {options.retain(|&x| x != value);}
+        }
+    }
+    
+    pub(crate) fn update_options(&mut self, row: usize, col: usize, options: &Vec<u8>) {
+        match &mut self.0[row][col] { 
+            Field::Empty => {self.0[row][col] = Field::Options(options.clone());},
+            Field::Options(current_options) => {current_options.retain(|x| options.contains(x));}
+            Field::Filled(_) => {}
+        }
+    }
+    
+    pub(crate) fn update_existing_options(&mut self, row: usize, col: usize, number: u8) -> bool {
+        match &mut self.0[row][col] { 
+            Field::Empty | Field::Filled(_) => {},
+            Field::Options(options) => {
+                options.retain(|&x| x != number);
+                if options.is_empty() { 
+                    return false;
+                }
+            }
+        }
+        true
+    }
+}
+
+impl Display for Sudoku {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "-------------------")?;
+        for row in self.0.iter() {
+            writeln!(f, "")?;
+            for cell in row.iter() {
+                write!(f, "|{}", cell)?;
+            }
+            write!(f, "|\n-------------------")?;
+        }
+        Ok(())
+    }
 }
 
 pub enum Field {
@@ -43,20 +86,6 @@ impl Display for Field {
             Field::Options(_) => write!(f, " "),
             Field::Filled(v) => write!(f, "{}", *v as i32),
         }
-    }
-}
-
-impl Display for Sudoku {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "-------------------")?;
-        for row in self.0.iter() {
-            writeln!(f, "")?;
-            for cell in row.iter() {
-                write!(f, "|{}", cell)?;
-            }
-            write!(f, "|\n-------------------")?;
-        }
-        Ok(())
     }
 }
 
