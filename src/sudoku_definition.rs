@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+#[derive(Default)]
 pub struct Sudoku(pub(crate) [[Field; 9]; 9]);
 
 impl Clone for Sudoku {
@@ -8,11 +9,6 @@ impl Clone for Sudoku {
     }
 }
 
-impl Default for Sudoku {
-    fn default() -> Sudoku {
-        Sudoku(Default::default())
-    }
-}
 
 impl Sudoku {
     pub(crate) fn gen_options_from_field(&self, row: usize, col: usize, options: &mut Vec<u8>) {
@@ -25,10 +21,10 @@ impl Sudoku {
         }
     }
 
-    pub(crate) fn update_options(&mut self, row: usize, col: usize, options: &Vec<u8>) {
+    pub(crate) fn update_options(&mut self, row: usize, col: usize, options: &[u8]) {
         match &mut self.0[row][col] {
             Field::Empty => {
-                self.0[row][col] = Field::Options(options.clone());
+                self.0[row][col] = Field::Options(options.to_vec());
             }
             Field::Options(current_options) => {
                 current_options.retain(|x| options.contains(x));
@@ -55,7 +51,7 @@ impl Display for Sudoku {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "-------------------")?;
         for row in self.0.iter() {
-            writeln!(f, "")?;
+            writeln!(f)?;
             for cell in row.iter() {
                 write!(f, "|{}", cell)?;
             }
@@ -65,16 +61,13 @@ impl Display for Sudoku {
     }
 }
 
+#[derive(Default)]
+#[derive(Debug)]
 pub enum Field {
+    #[default]
     Empty,
     Options(Vec<u8>),
     Filled(u8),
-}
-
-impl Default for Field {
-    fn default() -> Self {
-        Field::Empty
-    }
 }
 
 impl Clone for Field {

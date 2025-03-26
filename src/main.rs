@@ -4,12 +4,12 @@ mod sudoku_definition;
 
 fn numbers_to_sudoku(numbers: [[u8; 9]; 9]) -> Sudoku {
     let mut sudoku = Sudoku::default();
-    for row in 0..9 {
-        for col in 0..9 {
-            if numbers[row][col] == 0 {
+    for (row, row_ref) in numbers.iter().enumerate() {
+        for (col, &field) in row_ref.iter().enumerate() {
+            if field == 0 {
                 sudoku.0[row][col] = Field::Empty;
             } else {
-                sudoku.0[row][col] = Field::Filled(numbers[row][col]);
+                sudoku.0[row][col] = Field::Filled(field);
             }
         }
     }
@@ -62,25 +62,20 @@ fn sudoku_options_solvable(sudoku: &Sudoku) -> bool {
 }
 
 fn sudoku_field_valid(sudoku: &Sudoku, row: usize, col: usize) -> bool {
-    let current_value: u8;
-    match sudoku.0[row][col] {
+    let current_value = match sudoku.0[row][col] {
         Field::Empty | Field::Options(_) => return true,
         Field::Filled(val) => {
-            current_value = val;
+            val
         }
     };
     for i in 0..9 {
         // check row
-        if i != row {
-            if sudoku.0[i][col] == current_value {
-                return false;
-            }
+        if i != row && sudoku.0[i][col] == current_value {
+            return false;
         }
         // check col
-        if i != col {
-            if sudoku.0[row][i] == current_value {
-                return false;
-            }
+        if i != col && sudoku.0[row][i] == current_value {
+            return false;
         }
     }
     // check square
