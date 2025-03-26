@@ -11,6 +11,20 @@ impl Clone for Sudoku {
 
 
 impl Sudoku {
+    
+    pub fn new(numbers: [[u8; 9]; 9]) -> Self {
+        let mut sudoku = Sudoku::default();
+        for (row, row_ref) in numbers.iter().enumerate() {
+            for (col, &field) in row_ref.iter().enumerate() {
+                if field == 0 {
+                    sudoku.0[row][col] = Field::Empty;
+                } else {
+                    sudoku.0[row][col] = Field::Filled(field);
+                }
+            }
+        }
+        sudoku
+    }
     pub(crate) fn gen_options_from_field(&self, row: usize, col: usize, options: &mut Vec<u8>) {
         match self.0[row][col] {
             Field::Empty => {}

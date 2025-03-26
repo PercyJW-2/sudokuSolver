@@ -2,20 +2,6 @@ use sudoku_definition::{Field, Sudoku};
 
 mod sudoku_definition;
 
-fn numbers_to_sudoku(numbers: [[u8; 9]; 9]) -> Sudoku {
-    let mut sudoku = Sudoku::default();
-    for (row, row_ref) in numbers.iter().enumerate() {
-        for (col, &field) in row_ref.iter().enumerate() {
-            if field == 0 {
-                sudoku.0[row][col] = Field::Empty;
-            } else {
-                sudoku.0[row][col] = Field::Filled(field);
-            }
-        }
-    }
-    sudoku
-}
-
 fn build_initial_options(sudoku: &mut Sudoku) {
     // At the beginning, there is no Options in the Sudoku
     // Check rows
@@ -183,7 +169,7 @@ fn main() {
         [0, 0, 2, 0, 4, 5, 0, 3, 0],
         [4, 9, 0, 2, 3, 0, 5, 0, 8],
     ];
-    let mut field = numbers_to_sudoku(input);
+    let mut field = Sudoku::new(input);
     println!("{}", field);
     let valid = sudoku_options_solvable(&field);
     println!("Is Sudoku valid? {}", valid);
