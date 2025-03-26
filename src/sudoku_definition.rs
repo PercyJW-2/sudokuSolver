@@ -2,17 +2,19 @@ use std::fmt::Display;
 
 pub struct Sudoku(pub(crate) [[Field; 9]; 9]);
 
-impl Sudoku {
-    pub(crate) fn clone(&self) -> Sudoku {
+impl Clone for Sudoku {
+    fn clone(&self) -> Sudoku {
         Sudoku(self.0.clone())
     }
 }
 
-impl Sudoku {
-    pub(crate) fn default() -> Sudoku {
+impl Default for Sudoku {
+    fn default() -> Sudoku {
         Sudoku(Default::default())
     }
+}
 
+impl Sudoku {
     pub(crate) fn gen_options_from_field(&self, row: usize, col: usize, options: &mut Vec<u8>) {
         match self.0[row][col] {
             Field::Empty => {}
