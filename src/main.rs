@@ -1,4 +1,3 @@
-
 use sudoku_definition::{Field, Sudoku};
 
 mod sudoku_definition;
@@ -9,7 +8,7 @@ fn numbers_to_sudoku(numbers: [[u8; 9]; 9]) -> Sudoku {
         for col in 0..9 {
             if numbers[row][col] == 0 {
                 sudoku.0[row][col] = Field::Empty;
-            } else { 
+            } else {
                 sudoku.0[row][col] = Field::Filled(numbers[row][col]);
             }
         }
@@ -66,7 +65,9 @@ fn sudoku_field_valid(sudoku: &Sudoku, row: usize, col: usize) -> bool {
     let current_value: u8;
     match sudoku.0[row][col] {
         Field::Empty | Field::Options(_) => return true,
-        Field::Filled(val) => {current_value = val;},
+        Field::Filled(val) => {
+            current_value = val;
+        }
     };
     for i in 0..9 {
         // check row
@@ -76,7 +77,7 @@ fn sudoku_field_valid(sudoku: &Sudoku, row: usize, col: usize) -> bool {
             }
         }
         // check col
-        if i != col { 
+        if i != col {
             if sudoku.0[row][i] == current_value {
                 return false;
             }
@@ -100,8 +101,12 @@ fn sudoku_field_valid(sudoku: &Sudoku, row: usize, col: usize) -> bool {
 
 fn fill_field(sudoku: &mut Sudoku, row: usize, col: usize, new_value: u8) -> bool {
     match &sudoku.0[row][col] {
-        Field::Empty => { sudoku.0[row][col] = Field::Filled(new_value); }
-        Field::Filled(_) => { return false; }
+        Field::Empty => {
+            sudoku.0[row][col] = Field::Filled(new_value);
+        }
+        Field::Filled(_) => {
+            return false;
+        }
         Field::Options(options) => {
             if !options.contains(&new_value) {
                 return false;
@@ -112,7 +117,9 @@ fn fill_field(sudoku: &mut Sudoku, row: usize, col: usize, new_value: u8) -> boo
     // Update remaining options
     // update row and col
     for index in 0..9 {
-        if !sudoku.update_existing_options(row, index, new_value) || !sudoku.update_existing_options(index, col, new_value) {
+        if !sudoku.update_existing_options(row, index, new_value)
+            || !sudoku.update_existing_options(index, col, new_value)
+        {
             return false;
         }
     }
@@ -121,7 +128,7 @@ fn fill_field(sudoku: &mut Sudoku, row: usize, col: usize, new_value: u8) -> boo
     let col_offset = (col / 3) * 3;
     for r in row_offset..row_offset + 3 {
         for c in col_offset..col_offset + 3 {
-            if !sudoku.update_existing_options(r, c, new_value) { 
+            if !sudoku.update_existing_options(r, c, new_value) {
                 return false;
             }
         }
@@ -187,7 +194,9 @@ fn main() {
     println!("Is Sudoku valid? {}", valid);
     build_initial_options(&mut field);
     match solve(field) {
-        None => {println!("Could not solve");}
+        None => {
+            println!("Could not solve");
+        }
         Some(solved) => {
             let valid = sudoku_options_solvable(&solved);
             println!("Solution:\n{}", solved);

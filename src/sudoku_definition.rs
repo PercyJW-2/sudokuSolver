@@ -12,29 +12,35 @@ impl Sudoku {
     pub(crate) fn default() -> Sudoku {
         Sudoku(Default::default())
     }
-    
+
     pub(crate) fn gen_options_from_field(&self, row: usize, col: usize, options: &mut Vec<u8>) {
-        match self.0[row][col] { 
+        match self.0[row][col] {
             Field::Empty => {}
             Field::Options(_) => {}
-            Field::Filled(value) => {options.retain(|&x| x != value);}
+            Field::Filled(value) => {
+                options.retain(|&x| x != value);
+            }
         }
     }
-    
+
     pub(crate) fn update_options(&mut self, row: usize, col: usize, options: &Vec<u8>) {
-        match &mut self.0[row][col] { 
-            Field::Empty => {self.0[row][col] = Field::Options(options.clone());},
-            Field::Options(current_options) => {current_options.retain(|x| options.contains(x));}
+        match &mut self.0[row][col] {
+            Field::Empty => {
+                self.0[row][col] = Field::Options(options.clone());
+            }
+            Field::Options(current_options) => {
+                current_options.retain(|x| options.contains(x));
+            }
             Field::Filled(_) => {}
         }
     }
-    
+
     pub(crate) fn update_existing_options(&mut self, row: usize, col: usize, number: u8) -> bool {
-        match &mut self.0[row][col] { 
-            Field::Empty | Field::Filled(_) => {},
+        match &mut self.0[row][col] {
+            Field::Empty | Field::Filled(_) => {}
             Field::Options(options) => {
                 options.retain(|&x| x != number);
-                if options.is_empty() { 
+                if options.is_empty() {
                     return false;
                 }
             }
@@ -60,7 +66,7 @@ impl Display for Sudoku {
 pub enum Field {
     Empty,
     Options(Vec<u8>),
-    Filled(u8)
+    Filled(u8),
 }
 
 impl Default for Field {
@@ -74,7 +80,7 @@ impl Clone for Field {
         match &self {
             Field::Empty => Field::Empty,
             Field::Options(v) => Field::Options(v.clone()),
-            Field::Filled(v) => Field::Filled(*v)
+            Field::Filled(v) => Field::Filled(*v),
         }
     }
 }
@@ -92,9 +98,9 @@ impl Display for Field {
 impl PartialEq<u8> for Field {
     fn eq(&self, other: &u8) -> bool {
         match &self {
-            Field::Empty => {false}
-            Field::Options(_) => {false}
-            Field::Filled(value) => {*value == *other}
+            Field::Empty => false,
+            Field::Options(_) => false,
+            Field::Filled(value) => *value == *other,
         }
     }
 }
