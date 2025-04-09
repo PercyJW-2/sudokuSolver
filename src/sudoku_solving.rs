@@ -123,15 +123,12 @@ pub fn solve(mut sudoku: Sudoku) -> Option<Sudoku> {
     let mut finished = true;
     for row in 0..9 {
         for col in 0..9 {
-            match &sudoku.0[row][col] {
-                Field::Empty | Field::Filled(_) => {}
-                Field::Options(options) => {
-                    finished = false;
-                    if options.len() < count {
-                        count = options.len();
-                        min_row = row;
-                        min_col = col;
-                    }
+            if let Field::Options(options) = &sudoku.0[row][col] {
+                finished = false;
+                if options.len() < count {
+                    count = options.len();
+                    min_row = row;
+                    min_col = col;
                 }
             }
         }
@@ -140,18 +137,15 @@ pub fn solve(mut sudoku: Sudoku) -> Option<Sudoku> {
         return Some(sudoku);
     }
     // find correct value
-    match sudoku.0[min_row][min_col].clone() {
-        Field::Empty | Field::Filled(_) => {}
-        Field::Options(options) => {
-            for option in options {
-                let backup = sudoku.clone();
-                if fill_field(&mut sudoku, min_row, min_col, option) {
-                    if let Some(sudoku) = solve(sudoku) { 
-                        return Some(sudoku);
-                    }
+    if let Field::Options(options) = sudoku.0[min_row][min_col].clone() {
+        for option in options {
+            let backup = sudoku.clone();
+            if fill_field(&mut sudoku, min_row, min_col, option) {
+                if let Some(sudoku) = solve(sudoku) { 
+                    return Some(sudoku);
                 }
-                sudoku = backup;
             }
+            sudoku = backup;
         }
     }
     None
