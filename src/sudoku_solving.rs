@@ -146,7 +146,9 @@ pub fn solve(mut sudoku: Sudoku) -> Option<Sudoku> {
             for option in options {
                 let backup = sudoku.clone();
                 if fill_field(&mut sudoku, min_row, min_col, option) {
-                    return solve(sudoku);
+                    if let Some(sudoku) = solve(sudoku) { 
+                        return Some(sudoku);
+                    }
                 }
                 sudoku = backup;
             }
